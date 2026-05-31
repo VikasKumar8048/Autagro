@@ -1,0 +1,25 @@
+{
+  "name": "farmora",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FARMORA — transparent agricultural marketplace",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@farmora/api & npm run dev --workspace=@farmora/web",
+    "dev:api": "npm run dev --workspace=@farmora/api",
+    "dev:web": "npm run dev --workspace=@farmora/web",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "db:migrate": "npm run db:migrate --workspace=@farmora/api",
+    "db:generate": "npm run db:generate --workspace=@farmora/api",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

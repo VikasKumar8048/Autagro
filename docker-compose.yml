@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: farmora-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: farmora
+      POSTGRES_PASSWORD: farmora_dev_secret
+      POSTGRES_DB: farmora
+    ports:
+      - "5432:5432"
+    volumes:
+      - farmora_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U farmora -d farmora"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: farmora-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - farmora_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  farmora_pg_data:
+  farmora_redis_data:
