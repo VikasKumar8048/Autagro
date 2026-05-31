@@ -89,6 +89,12 @@ export const buyerApi = {
       ...auth(token),
     }),
 
+  confirmDelivery: (token: string, id: string) =>
+    apiRequest<BuyerOrderDetail>(`/buyer/orders/${id}/confirm-delivery`, {
+      method: 'POST',
+      ...auth(token),
+    }),
+
   requests: (token: string, status?: string) =>
     apiRequest<BuyerRequest[]>(
       `/buyer/requests${status ? `?status=${status}` : ''}`,

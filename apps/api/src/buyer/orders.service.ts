@@ -89,7 +89,7 @@ export class OrdersService {
     }
 
     const buyerProfile = await this.prisma.userProfile.findUnique({
-      where: { userId },
+      where: { userId: buyerId },
     });
 
     const result = await this.prisma.$transaction(async (tx) => {

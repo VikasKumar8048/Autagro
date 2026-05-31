@@ -51,7 +51,9 @@ npm run dev:web
 | 1 | Authentication | Implemented |
 | 2 | Seller Dashboard | Implemented |
 | 3 | Buyer Dashboard (orders, confirm, requests) | Implemented |
-| 4 | Marketplace filters / price engine | Planned |
+| 4 | Crop price engine (eNAM) | Planned |
+| 5 | Transport matching + GPS + transporter UI | Implemented |
+| 6 | AgriPay escrow | Planned |
 | 4–10 | See `docs/ARCHITECTURE.md` | Planned |
 
 ## Documentation

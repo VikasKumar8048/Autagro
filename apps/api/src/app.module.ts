@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { BuyerModule } from './buyer/buyer.module';
+import { TransportModule } from './transport/transport.module';
 import { MarketplaceModule } from './marketplace/marketplace.module';
 import { SellerModule } from './seller/seller.module';
 import { UsersModule } from './users/users.module';
@@ -32,6 +33,7 @@ import { UsersModule } from './users/users.module';
     SellerModule,
     MarketplaceModule,
     BuyerModule,
+    TransportModule,
   ],
   providers: [
     {

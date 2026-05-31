@@ -64,5 +64,21 @@ Base URL: `/api/v1`
 | GET | `/buyer/requests` | My purchase requests | BUYER |
 | POST | `/buyer/requests/:id/cancel` | Cancel pending request | BUYER |
 | GET | `/seller/orders` | Seller order list | SELLER |
+| POST | `/buyer/orders/:id/confirm-delivery` | Confirm crop received | BUYER |
+
+## Transporter (Phase 5)
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| GET | `/transporter/dashboard` | Stats | TRANSPORTER |
+| POST | `/transporter/location` | Update GPS for matching | TRANSPORTER |
+| GET | `/transporter/jobs/available` | Nearby open jobs | TRANSPORTER |
+| POST | `/transporter/jobs/:id/accept` | Accept job (Redis lock) | TRANSPORTER |
+| GET | `/transporter/jobs/active` | Active deliveries | TRANSPORTER |
+| POST | `/transporter/jobs/:id/pickup` | Mark picked up | TRANSPORTER |
+| POST | `/transporter/jobs/:id/transit` | Start transit | TRANSPORTER |
+| POST | `/transporter/jobs/:id/location` | GPS ping | TRANSPORTER |
+| POST | `/transporter/jobs/:id/deliver` | Complete delivery | TRANSPORTER |
+| GET | `/orders/:orderId/tracking` | Shipment GPS trail | BUYER/SELLER |
 
 OpenAPI: `GET /api/docs` (Swagger UI)

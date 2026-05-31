@@ -47,6 +47,12 @@ export class BuyerController {
     return this.orders.confirmByBuyer(user.sub, id);
   }
 
+  @Post('orders/:id/confirm-delivery')
+  @ApiOperation({ summary: 'Confirm crop received; completes order (escrow release in Phase 6)' })
+  confirmDelivery(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
+    return this.orders.confirmDeliveryByBuyer(user.sub, id);
+  }
+
   @Get('requests')
   @ApiOperation({ summary: 'List buyer purchase requests' })
   @ApiQuery({ name: 'status', enum: PurchaseRequestStatus, required: false })
