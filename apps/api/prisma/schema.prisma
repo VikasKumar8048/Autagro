@@ -52,6 +52,13 @@ enum ListingStatus {
   REMOVED
 }
 
+enum PurchaseRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
 enum EscrowStatus {
   PENDING
   FUNDED
@@ -229,9 +236,9 @@ model PurchaseRequest {
   buyerId   String   @map("buyer_id") @db.Uuid
   quantity  Decimal  @db.Decimal(12, 3)
   message   String?  @db.VarChar(500)
-  status    String   @default("PENDING") @db.VarChar(30)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  status    PurchaseRequestStatus @default(PENDING)
+  createdAt DateTime              @default(now()) @map("created_at")
+  updatedAt DateTime              @updatedAt @map("updated_at")
 
   listing CropListing @relation(fields: [listingId], references: [id])
   buyer   User        @relation("BuyerRequests", fields: [buyerId], references: [id])
