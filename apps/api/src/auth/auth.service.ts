@@ -111,7 +111,10 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto, meta: RequestMeta): Promise<AuthResponse> {
-    const existing = await this.prisma.user.findUnique({ where: { phone: dto.phone } });
+    const existing = await this.prisma.user.findUnique({
+      where: { phone: dto.phone },
+      include: { profile: true },
+    });
     if (existing?.profile) {
       throw new ConflictException('User already registered');
     }

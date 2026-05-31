@@ -15,10 +15,11 @@ describe('AuthService', () => {
       findFirst: jest.fn(),
       update: jest.fn(),
       upsert: jest.fn(),
+      findUniqueOrThrow: jest.fn(),
     },
     userProfile: { upsert: jest.fn() },
     session: { create: jest.fn() },
-    $transaction: jest.fn((fn: (tx: typeof prisma) => unknown) => fn(prisma)),
+    $transaction: jest.fn(),
   };
 
   const otp = { requestOtp: jest.fn(), verifyOtp: jest.fn() };

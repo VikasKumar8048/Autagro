@@ -49,8 +49,8 @@ npm run dev:web
 | Phase | Module | Status |
 |-------|--------|--------|
 | 1 | Authentication | Implemented |
-| 2 | Seller Dashboard | Planned |
-| 3 | Buyer Dashboard | Planned |
+| 2 | Seller Dashboard | Implemented |
+| 3 | Buyer Marketplace (browse + request) | Implemented (orders UI in Phase 3) |
 | 4–10 | See `docs/ARCHITECTURE.md` | Planned |
 
 ## Documentation

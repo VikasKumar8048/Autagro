@@ -21,7 +21,7 @@ export default function HomePage() {
           <Link href="/login">Get started</Link>
         </Button>
         <Button size="lg" variant="outline" asChild>
-          <Link href="/login">Sign in with OTP</Link>
+          <Link href="/marketplace">Browse marketplace</Link>
         </Button>
       </div>
     </main>

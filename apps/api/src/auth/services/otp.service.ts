@@ -3,7 +3,6 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  TooManyRequestsException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OtpPurpose } from '@prisma/client';
@@ -86,8 +85,9 @@ export class OtpService {
     const count = await this.redis.incrementWithExpiry(key, window);
 
     if (count > limit) {
-      throw new TooManyRequestsException(
+      throw new HttpException(
         'Too many OTP requests. Please try again later.',
+        HttpStatus.TOO_MANY_REQUESTS,
       );
     }
   }

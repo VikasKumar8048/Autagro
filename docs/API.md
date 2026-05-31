@@ -25,4 +25,32 @@ Base URL: `/api/v1`
 | PATCH | `/users/me` | Update profile | Bearer |
 | PATCH | `/users/me/password` | Change password | Bearer |
 
+## Seller (Phase 2)
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| GET | `/seller/dashboard` | Stats + recent requests | SELLER |
+| GET | `/seller/listings` | List own listings | SELLER |
+| POST | `/seller/listings` | Create draft listing | SELLER |
+| GET | `/seller/listings/:id` | Listing + pending requests | SELLER |
+| PATCH | `/seller/listings/:id` | Update listing | SELLER |
+| POST | `/seller/listings/:id/publish` | Publish draft | SELLER |
+| DELETE | `/seller/listings/:id` | Soft-remove listing | SELLER |
+| GET | `/seller/requests` | Incoming purchase requests | SELLER |
+| POST | `/seller/requests/:id/accept` | Accept → creates order | SELLER |
+| POST | `/seller/requests/:id/reject` | Reject request | SELLER |
+
+## Marketplace (public browse)
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| GET | `/marketplace/listings` | Search active listings | Public |
+| GET | `/marketplace/listings/:id` | Listing detail | Public |
+
+## Purchase requests
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| POST | `/purchase-requests` | Buyer sends request | BUYER |
+
 OpenAPI: `GET /api/docs` (Swagger UI)
