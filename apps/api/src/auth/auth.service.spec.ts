@@ -94,6 +94,6 @@ describe('AuthService', () => {
         { identifier: '+919999999999', password: 'Password1' },
         {},
       ),
-    ).rejects.toThrow(BadRequestException);
+    ).rejects.toThrow(UnauthorizedException);
   });
 });
