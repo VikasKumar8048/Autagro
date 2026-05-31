@@ -5,6 +5,8 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
+import { MarketplaceModule } from './marketplace/marketplace.module';
+import { SellerModule } from './seller/seller.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -26,6 +28,8 @@ import { UsersModule } from './users/users.module';
     RedisModule,
     AuthModule,
     UsersModule,
+    SellerModule,
+    MarketplaceModule,
   ],
   providers: [
     {
