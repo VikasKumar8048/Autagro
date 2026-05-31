@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OrderStatusBadge } from '@/components/orders/order-status-badge';
+import { EscrowPaymentPanel } from '@/components/payments/escrow-payment-panel';
 import { ShipmentTracker } from '@/components/tracking/shipment-tracker';
 import { buyerApi } from '@/lib/buyer-api';
 import { useAuthStore } from '@/stores/auth.store';
@@ -116,7 +117,7 @@ export default function BuyerOrderDetailPage() {
           {order.status === 'DELIVERED' && (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
               <p className="mb-3 text-emerald-900">
-                Crop delivered. Confirm receipt to complete the order (payment release in Phase 6).
+                Crop delivered. Confirm receipt to release escrow to the seller and transporter.
               </p>
               <Button
                 disabled={deliveryMutation.isPending}
@@ -129,7 +130,9 @@ export default function BuyerOrderDetailPage() {
         </CardContent>
       </Card>
 
-      {['TRANSPORT_ASSIGNED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED', 'TRANSPORT_PENDING'].includes(
+      <EscrowPaymentPanel accessToken={accessToken} orderId={id} />
+
+      {['TRANSPORT_ASSIGNED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED', 'TRANSPORT_PENDING', 'PAID_ESCROW'].includes(
         order.status,
       ) && <ShipmentTracker accessToken={accessToken} orderId={id} />}
     </div>

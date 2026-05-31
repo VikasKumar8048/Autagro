@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { paymentsApi } from '@/lib/payments-api';
 import { sellerApi } from '@/lib/seller-api';
 import { useAuthStore } from '@/stores/auth.store';
 
@@ -24,6 +25,11 @@ export default function SellerDashboardPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['seller-dashboard'],
     queryFn: () => sellerApi.dashboard(accessToken),
+  });
+
+  const { data: wallet } = useQuery({
+    queryKey: ['wallet'],
+    queryFn: () => paymentsApi.wallet(accessToken),
   });
 
   if (isLoading) {
@@ -53,6 +59,10 @@ export default function SellerDashboardPage() {
         <StatCard
           label="Total earnings (completed)"
           value={`₹${(stats?.totalEarnings ?? 0).toLocaleString('en-IN')}`}
+        />
+        <StatCard
+          label="Wallet balance"
+          value={`₹${(wallet?.balance ?? 0).toLocaleString('en-IN')}`}
         />
       </div>
 

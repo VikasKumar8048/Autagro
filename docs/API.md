@@ -81,4 +81,16 @@ Base URL: `/api/v1`
 | POST | `/transporter/jobs/:id/deliver` | Complete delivery | TRANSPORTER |
 | GET | `/orders/:orderId/tracking` | Shipment GPS trail | BUYER/SELLER |
 
+## AgriPay Escrow (Phase 6)
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| POST | `/payments/orders/:orderId/checkout` | Create payment session | BUYER |
+| POST | `/payments/orders/:orderId/verify` | Verify Razorpay & fund escrow | BUYER |
+| POST | `/payments/orders/:orderId/mock-pay` | Dev instant pay | BUYER |
+| GET | `/payments/orders/:orderId/escrow` | Escrow + ledger | Bearer |
+| GET | `/wallet/me` | Wallet balance & settlements | Bearer |
+
+**Settlement:** On `POST /buyer/orders/:id/confirm-delivery`, escrow splits to seller (crop), transporter (fee), and platform (commission).
+
 OpenAPI: `GET /api/docs` (Swagger UI)

@@ -101,6 +101,7 @@ model User {
   ratingsGiven       Rating[]          @relation("RatingsGiven")
   ratingsReceived    Rating[]          @relation("RatingsReceived")
   disputesRaised     Dispute[]         @relation("DisputesRaised")
+  wallet             UserWallet?
 
   @@index([role, status])
   @@map("users")
@@ -296,20 +297,75 @@ model TransportJob {
 }
 
 model EscrowAccount {
-  id        String       @id @default(uuid()) @db.Uuid
-  orderId   String       @unique @map("order_id") @db.Uuid
-  status    EscrowStatus @default(PENDING)
-  totalAmount Decimal    @map("total_amount") @db.Decimal(14, 2)
-  currency  String       @default("INR") @db.VarChar(3)
-  fundedAt  DateTime?    @map("funded_at")
-  releasedAt DateTime?   @map("released_at")
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
+  id          String       @id @default(uuid()) @db.Uuid
+  orderId     String       @unique @map("order_id") @db.Uuid
+  status      EscrowStatus @default(PENDING)
+  totalAmount Decimal      @map("total_amount") @db.Decimal(14, 2)
+  cropAmount  Decimal      @map("crop_amount") @db.Decimal(14, 2)
+  transportAmount Decimal? @map("transport_amount") @db.Decimal(14, 2)
+  platformAmount  Decimal? @map("platform_amount") @db.Decimal(14, 2)
+  currency    String       @default("INR") @db.VarChar(3)
+  fundedAt    DateTime?    @map("funded_at")
+  releasedAt  DateTime?    @map("released_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
 
-  order   Order          @relation(fields: [orderId], references: [id])
-  entries LedgerEntry[]
+  order    Order            @relation(fields: [orderId], references: [id])
+  entries  LedgerEntry[]
+  payments PaymentRecord[]
 
   @@map("escrow_accounts")
+}
+
+model PaymentRecord {
+  id                String   @id @default(uuid()) @db.Uuid
+  escrowId          String   @map("escrow_id") @db.Uuid
+  provider          String   @db.VarChar(20)
+  providerOrderId   String?  @map("provider_order_id") @db.VarChar(100)
+  providerPaymentId String?  @map("provider_payment_id") @db.VarChar(100)
+  amount            Decimal  @db.Decimal(14, 2)
+  currency          String   @default("INR") @db.VarChar(3)
+  status            String   @default("CREATED") @db.VarChar(30)
+  idempotencyKey    String   @unique @map("idempotency_key") @db.VarChar(100)
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  escrow EscrowAccount @relation(fields: [escrowId], references: [id])
+
+  @@index([escrowId, status])
+  @@map("payment_records")
+}
+
+model UserWallet {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
+  balance   Decimal  @default(0) @db.Decimal(14, 2)
+  currency  String   @default("INR") @db.VarChar(3)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions WalletTransaction[]
+
+  @@map("user_wallets")
+}
+
+model WalletTransaction {
+  id        String   @id @default(uuid()) @db.Uuid
+  walletId  String   @map("wallet_id") @db.Uuid
+  amount    Decimal  @db.Decimal(14, 2)
+  direction String   @db.VarChar(10)
+  type      String   @db.VarChar(50)
+  orderId   String?  @map("order_id") @db.Uuid
+  reference String?  @db.VarChar(100)
+  metadata  Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  wallet UserWallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
+  @@map("wallet_transactions")
 }
 
 model LedgerEntry {

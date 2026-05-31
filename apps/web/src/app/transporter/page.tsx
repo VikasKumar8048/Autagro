@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { paymentsApi } from '@/lib/payments-api';
 import { transporterApi } from '@/lib/transporter-api';
 import { useAuthStore } from '@/stores/auth.store';
 
@@ -19,6 +20,11 @@ export default function TransporterDashboardPage() {
   const { data } = useQuery({
     queryKey: ['transporter-dashboard'],
     queryFn: () => transporterApi.dashboard(accessToken),
+  });
+
+  const { data: wallet } = useQuery({
+    queryKey: ['wallet'],
+    queryFn: () => paymentsApi.wallet(accessToken),
   });
 
   const locationMutation = useMutation({
@@ -51,6 +57,14 @@ export default function TransporterDashboardPage() {
           <CardContent className="pt-6">
             <p className="text-sm text-slate-500">Completed</p>
             <p className="text-2xl font-bold">{stats?.completedDeliveries ?? 0}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-slate-500">Wallet balance</p>
+            <p className="text-2xl font-bold text-emerald-900">
+              ₹{(wallet?.balance ?? 0).toLocaleString('en-IN')}
+            </p>
           </CardContent>
         </Card>
       </div>

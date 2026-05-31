@@ -3,13 +3,17 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { OrderStatus, Prisma } from '@prisma/client';
+import { EscrowStatus, OrderStatus, Prisma } from '@prisma/client';
 import { decimalToNumber } from '../common/utils/decimal.util';
+import { EscrowService } from '../agripay/escrow.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly escrow: EscrowService,
+  ) {}
 
   async listForBuyer(buyerId: string, status?: OrderStatus) {
     const orders = await this.prisma.order.findMany({
@@ -117,12 +121,16 @@ export class OrdersService {
   async confirmDeliveryByBuyer(buyerId: string, orderId: string) {
     const order = await this.prisma.order.findFirst({
       where: { id: orderId, buyerId },
+      include: { escrow: true },
     });
     if (!order) {
       throw new NotFoundException('Order not found');
     }
     if (order.status !== OrderStatus.DELIVERED) {
       throw new BadRequestException('Order is not ready for delivery confirmation');
+    }
+    if (!order.escrow || order.escrow.status !== EscrowStatus.FUNDED) {
+      throw new BadRequestException('Escrow must be funded before confirming delivery');
     }
 
     const updated = await this.prisma.order.update({
@@ -131,7 +139,16 @@ export class OrdersService {
       include: this.detailInclude(),
     });
 
-    return this.serializeOrderDetail(updated);
+    if (order.escrow || updated.escrow) {
+      await this.escrow.releaseEscrow(orderId);
+    }
+
+    const refreshed = await this.prisma.order.findUniqueOrThrow({
+      where: { id: orderId },
+      include: this.detailInclude(),
+    });
+
+    return this.serializeOrderDetail(refreshed);
   }
 
   private detailInclude() {

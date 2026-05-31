@@ -53,7 +53,7 @@ npm run dev:web
 | 3 | Buyer Dashboard (orders, confirm, requests) | Implemented |
 | 4 | Crop price engine (eNAM) | Planned |
 | 5 | Transport matching + GPS + transporter UI | Implemented |
-| 6 | AgriPay escrow | Planned |
+| 6 | AgriPay escrow (Razorpay, ledger, wallets) | Implemented |
 | 4–10 | See `docs/ARCHITECTURE.md` | Planned |
 
 ## Documentation
