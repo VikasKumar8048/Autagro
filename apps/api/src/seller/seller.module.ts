@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { OrdersService } from '../buyer/orders.service';
 import { ListingsService } from '../listings/listings.service';
 import { SellerListingsController } from '../listings/listings.controller';
 import { PurchaseRequestsController } from '../purchase-requests/purchase-requests.controller';
@@ -12,6 +13,6 @@ import { SellerService } from './seller.service';
     SellerListingsController,
     PurchaseRequestsController,
   ],
-  providers: [SellerService, ListingsService, PurchaseRequestsService],
+  providers: [SellerService, ListingsService, PurchaseRequestsService, OrdersService],
 })
 export class SellerModule {}

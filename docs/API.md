@@ -53,4 +53,16 @@ Base URL: `/api/v1`
 |--------|------|-------------|------|
 | POST | `/purchase-requests` | Buyer sends request | BUYER |
 
+## Buyer (Phase 3)
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| GET | `/buyer/dashboard` | Stats + recent orders | BUYER |
+| GET | `/buyer/orders` | List orders | BUYER |
+| GET | `/buyer/orders/:id` | Order detail | BUYER |
+| POST | `/buyer/orders/:id/confirm` | Confirm → transport pending | BUYER |
+| GET | `/buyer/requests` | My purchase requests | BUYER |
+| POST | `/buyer/requests/:id/cancel` | Cancel pending request | BUYER |
+| GET | `/seller/orders` | Seller order list | SELLER |
+
 OpenAPI: `GET /api/docs` (Swagger UI)

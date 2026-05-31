@@ -63,6 +63,57 @@ export class PurchaseRequestsService {
     return this.serialize(request);
   }
 
+  async listForBuyer(buyerId: string, status?: PurchaseRequestStatus) {
+    const requests = await this.prisma.purchaseRequest.findMany({
+      where: {
+        buyerId,
+        ...(status ? { status } : {}),
+      },
+      include: {
+        listing: {
+          select: {
+            id: true,
+            cropName: true,
+            variety: true,
+            unit: true,
+            pricePerUnit: true,
+            status: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return requests.map((r) => ({
+      ...this.serialize(r),
+      listing: {
+        id: r.listing.id,
+        cropName: r.listing.cropName,
+        variety: r.listing.variety,
+        unit: r.listing.unit,
+        pricePerUnit: decimalToNumber(r.listing.pricePerUnit),
+        status: r.listing.status,
+      },
+      estimatedTotal: decimalToNumber(r.listing.pricePerUnit.mul(r.quantity)),
+    }));
+  }
+
+  async cancelAsBuyer(buyerId: string, requestId: string) {
+    const request = await this.prisma.purchaseRequest.findFirst({
+      where: { id: requestId, buyerId },
+    });
+    if (!request) {
+      throw new NotFoundException('Purchase request not found');
+    }
+    if (request.status !== PurchaseRequestStatus.PENDING) {
+      throw new BadRequestException('Only pending requests can be cancelled');
+    }
+    const updated = await this.prisma.purchaseRequest.update({
+      where: { id: requestId },
+      data: { status: PurchaseRequestStatus.CANCELLED },
+    });
+    return this.serialize(updated);
+  }
+
   async listForSeller(sellerId: string, status?: PurchaseRequestStatus) {
     const requests = await this.prisma.purchaseRequest.findMany({
       where: {

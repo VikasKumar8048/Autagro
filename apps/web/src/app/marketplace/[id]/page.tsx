@@ -30,7 +30,7 @@ export default function ListingDetailPage() {
         quantity: Number(quantity),
         message: message || undefined,
       }),
-    onSuccess: () => router.push('/dashboard'),
+    onSuccess: () => router.push('/buyer/requests'),
   });
 
   if (isLoading || !listing) {

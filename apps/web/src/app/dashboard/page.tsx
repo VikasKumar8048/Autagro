@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores/auth.store';
 
 const ROLE_HOME: Record<string, string> = {
   SELLER: '/seller',
-  BUYER: '/marketplace',
+  BUYER: '/buyer',
   TRANSPORTER: '/dashboard',
   ADMIN: '/dashboard',
 };

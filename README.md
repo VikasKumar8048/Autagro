@@ -50,7 +50,8 @@ npm run dev:web
 |-------|--------|--------|
 | 1 | Authentication | Implemented |
 | 2 | Seller Dashboard | Implemented |
-| 3 | Buyer Marketplace (browse + request) | Implemented (orders UI in Phase 3) |
+| 3 | Buyer Dashboard (orders, confirm, requests) | Implemented |
+| 4 | Marketplace filters / price engine | Planned |
 | 4–10 | See `docs/ARCHITECTURE.md` | Planned |
 
 ## Documentation

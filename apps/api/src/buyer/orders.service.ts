@@ -88,6 +88,10 @@ export class OrdersService {
       );
     }
 
+    const buyerProfile = await this.prisma.userProfile.findUnique({
+      where: { userId },
+    });
+
     const result = await this.prisma.$transaction(async (tx) => {
       await tx.transportJob.create({
         data: {
@@ -95,6 +99,8 @@ export class OrdersService {
           status: 'PENDING',
           pickupLat: order.purchaseRequest.listing.latitude ?? undefined,
           pickupLng: order.purchaseRequest.listing.longitude ?? undefined,
+          dropLat: buyerProfile?.latitude ?? undefined,
+          dropLng: buyerProfile?.longitude ?? undefined,
         },
       });
 
@@ -106,6 +112,26 @@ export class OrdersService {
     });
 
     return this.serializeOrderDetail(result);
+  }
+
+  async confirmDeliveryByBuyer(buyerId: string, orderId: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { id: orderId, buyerId },
+    });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    if (order.status !== OrderStatus.DELIVERED) {
+      throw new BadRequestException('Order is not ready for delivery confirmation');
+    }
+
+    const updated = await this.prisma.order.update({
+      where: { id: orderId },
+      data: { status: OrderStatus.COMPLETED },
+      include: this.detailInclude(),
+    });
+
+    return this.serializeOrderDetail(updated);
   }
 
   private detailInclude() {
@@ -209,11 +235,7 @@ export class OrdersService {
       },
       shipment: order.shipment,
       nextAction:
-        order.status === OrderStatus.SELLER_ACCEPTED
-          ? 'CONFIRM_ORDER'
-          : order.status === OrderStatus.TRANSPORT_PENDING
-            ? 'AWAIT_TRANSPORT'
-            : null,
+        order.status === OrderStatus.SELLER_ACCEPTED ? 'CONFIRM_ORDER' : null,
     };
   }
 }
