@@ -6,6 +6,7 @@ const BUYER_NAV = [
   { href: '/marketplace', label: 'Marketplace' },
   { href: '/buyer/requests', label: 'My requests' },
   { href: '/buyer/orders', label: 'Orders' },
+  { href: '/wallet', label: 'Wallet' },
 ];
 
 export default function BuyerLayout({ children }: { children: React.ReactNode }) {

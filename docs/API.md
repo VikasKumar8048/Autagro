@@ -93,4 +93,23 @@ Base URL: `/api/v1`
 
 **Settlement:** On `POST /buyer/orders/:id/confirm-delivery`, escrow splits to seller (crop), transporter (fee), and platform (commission).
 
+## Disputes (Phase 9)
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| POST | `/disputes` | Open dispute on order | Bearer (buyer/seller) |
+| GET | `/disputes/mine` | My disputes | Bearer |
+| GET | `/disputes/:id` | Dispute detail | Bearer |
+| GET | `/admin/disputes` | Admin queue | Bearer (ADMIN) |
+| PATCH | `/admin/disputes/:id` | Review / resolve / reject | Bearer (ADMIN) |
+
+## Notifications (Phase 8)
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| GET | `/notifications` | List notifications | Bearer |
+| GET | `/notifications/unread-count` | Unread count | Bearer |
+| PATCH | `/notifications/read-all` | Mark all read | Bearer |
+| PATCH | `/notifications/:id/read` | Mark one read | Bearer |
+
 OpenAPI: `GET /api/docs` (Swagger UI)

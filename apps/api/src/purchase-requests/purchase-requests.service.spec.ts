@@ -2,6 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ListingStatus, PurchaseRequestStatus } from '@prisma/client';
 import { Prisma } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PurchaseRequestsService } from './purchase-requests.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -31,10 +32,13 @@ describe('PurchaseRequestsService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    const notifications = { notify: jest.fn(), notifyMany: jest.fn() };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PurchaseRequestsService,
         { provide: PrismaService, useValue: prisma },
+        { provide: NotificationsService, useValue: notifications },
       ],
     }).compile();
     service = module.get(PurchaseRequestsService);

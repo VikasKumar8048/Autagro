@@ -1,6 +1,8 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrderStatus, Prisma } from '@prisma/client';
+import { EscrowService } from '../agripay/escrow.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { OrdersService } from './orders.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -15,13 +17,22 @@ describe('OrdersService', () => {
       findUniqueOrThrow: jest.fn(),
     },
     transportJob: { create: jest.fn() },
+    userProfile: { findUnique: jest.fn() },
     $transaction: jest.fn(),
   };
+
+  const escrow = { releaseEscrow: jest.fn() };
+  const notifications = { notify: jest.fn() };
 
   beforeEach(async () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OrdersService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        OrdersService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: EscrowService, useValue: escrow },
+        { provide: NotificationsService, useValue: notifications },
+      ],
     }).compile();
     service = module.get(OrdersService);
   });
@@ -46,6 +57,7 @@ describe('OrdersService', () => {
       },
     };
     prisma.order.findFirst.mockResolvedValue(order);
+    prisma.userProfile.findUnique.mockResolvedValue(null);
     prisma.$transaction.mockImplementation(async (fn: (tx: typeof prisma) => unknown) => {
       prisma.transportJob.create.mockResolvedValue({ id: 'tj1' });
       prisma.order.update.mockResolvedValue({

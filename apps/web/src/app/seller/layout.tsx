@@ -6,6 +6,7 @@ const SELLER_NAV = [
   { href: '/seller/listings', label: 'Listings' },
   { href: '/seller/requests', label: 'Requests' },
   { href: '/seller/orders', label: 'Orders' },
+  { href: '/wallet', label: 'Wallet' },
 ];
 
 export default function SellerLayout({ children }: { children: React.ReactNode }) {

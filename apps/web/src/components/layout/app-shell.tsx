@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { NotificationBell } from '@/components/notifications/notification-bell';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/stores/auth.store';
 import { cn } from '@/lib/utils';
@@ -41,6 +42,7 @@ export function AppShell({
             ))}
           </nav>
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <span className="hidden text-sm text-slate-500 sm:inline">
               {user?.profile?.fullName}
             </span>

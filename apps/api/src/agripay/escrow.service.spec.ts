@@ -7,10 +7,13 @@ describe('EscrowService', () => {
   const wallet = { credit: jest.fn() };
   const prisma = {};
 
+  const notifications = { notify: jest.fn(), notifyMany: jest.fn() };
+
   const service = new EscrowService(
     prisma as never,
     ledger as never,
     wallet as never,
+    notifications as never,
   );
 
   it('calculates platform fee from crop amount', () => {

@@ -51,16 +51,19 @@ npm run dev:web
 | 1 | Authentication | Implemented |
 | 2 | Seller Dashboard | Implemented |
 | 3 | Buyer Dashboard (orders, confirm, requests) | Implemented |
-| 4 | Crop price engine (eNAM) | Planned |
 | 5 | Transport matching + GPS + transporter UI | Implemented |
 | 6 | AgriPay escrow (Razorpay, ledger, wallets) | Implemented |
-| 4–10 | See `docs/ARCHITECTURE.md` | Planned |
+| 7 | GPS tracking (core) | Implemented |
+| 8 | Notifications (in-app, email/SMS dev) | Implemented |
+| 9 | Disputes (raise, admin resolve, escrow freeze/refund) | Implemented |
+| 10 | Price engine, production ops | Planned |
 
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Database](docs/DATABASE.md)
-- [API (Phase 1)](docs/API.md)
+- [API](docs/API.md)
+- [AgriPay Escrow](docs/AGRIPAY.md)
 
 ## Tests
 

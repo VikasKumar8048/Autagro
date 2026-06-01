@@ -6,6 +6,7 @@ import {
 import { OrderStatus, Prisma } from '@prisma/client';
 import { decimalToNumber, toDecimal } from '../common/utils/decimal.util';
 import { distanceKm, estimateTransportFee } from '../common/utils/geo.util';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import {
@@ -33,6 +34,7 @@ export class TransportMatchingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async listAvailableJobs(
@@ -235,6 +237,27 @@ export class TransportMatchingService {
 
         return updatedJob;
       });
+
+      const order = await this.prisma.order.findUniqueOrThrow({
+        where: { id: job.orderId },
+      });
+      void this.notifications.notifyMany([
+        {
+          userId: order.buyerId,
+          type: 'TRANSPORT_ASSIGNED',
+          title: 'Transporter assigned',
+          body: 'A transporter accepted your delivery. You can pay into escrow when ready.',
+          data: { orderId: job.orderId },
+          sendSms: true,
+        },
+        {
+          userId: order.sellerId,
+          type: 'TRANSPORT_ASSIGNED',
+          title: 'Transporter assigned',
+          body: 'A transporter will pick up your crop soon.',
+          data: { orderId: job.orderId },
+        },
+      ]);
 
       return this.getJobForTransporter(transporterId, result.id);
     } finally {

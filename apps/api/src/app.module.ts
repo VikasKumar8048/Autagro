@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { NotificationsModule } from './notifications/notifications.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { AgripayModule } from './agripay/agripay.module';
+import { DisputesModule } from './disputes/disputes.module';
 import { BuyerModule } from './buyer/buyer.module';
 import { TransportModule } from './transport/transport.module';
 import { MarketplaceModule } from './marketplace/marketplace.module';
@@ -29,6 +31,7 @@ import { UsersModule } from './users/users.module';
     ]),
     PrismaModule,
     RedisModule,
+    NotificationsModule,
     AuthModule,
     UsersModule,
     SellerModule,
@@ -36,6 +39,7 @@ import { UsersModule } from './users/users.module';
     BuyerModule,
     TransportModule,
     AgripayModule,
+    DisputesModule,
   ],
   providers: [
     {

@@ -59,7 +59,7 @@ export class PaymentsController {
   @ApiBearerAuth()
   @Get('wallet/me')
   @ApiOperation({ summary: 'Wallet balance and recent settlements' })
-  wallet(@CurrentUser() user: JwtPayload) {
+  getWallet(@CurrentUser() user: JwtPayload) {
     return this.wallet.getWalletSummary(user.sub);
   }
 }

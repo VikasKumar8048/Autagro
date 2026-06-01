@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OrderStatusBadge } from '@/components/orders/order-status-badge';
+import { OpenDisputeForm } from '@/components/disputes/open-dispute-form';
 import { EscrowPaymentPanel } from '@/components/payments/escrow-payment-panel';
 import { ShipmentTracker } from '@/components/tracking/shipment-tracker';
 import { buyerApi } from '@/lib/buyer-api';
@@ -131,6 +132,25 @@ export default function BuyerOrderDetailPage() {
       </Card>
 
       <EscrowPaymentPanel accessToken={accessToken} orderId={id} />
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Dispute</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OpenDisputeForm
+            orderId={id}
+            disabled={
+              order.status === 'DISPUTED' ||
+              order.status === 'COMPLETED' ||
+              order.status === 'CANCELLED' ||
+              !['PAID_ESCROW', 'IN_TRANSIT', 'DELIVERED', 'TRANSPORT_ASSIGNED'].includes(
+                order.status,
+              )
+            }
+          />
+        </CardContent>
+      </Card>
 
       {['TRANSPORT_ASSIGNED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED', 'TRANSPORT_PENDING', 'PAID_ESCROW'].includes(
         order.status,

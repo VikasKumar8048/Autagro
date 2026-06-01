@@ -8,7 +8,7 @@ const ROLE_HOME: Record<string, string> = {
   SELLER: '/seller',
   BUYER: '/buyer',
   TRANSPORTER: '/transporter',
-  ADMIN: '/dashboard',
+  ADMIN: '/admin/disputes',
 };
 
 export default function DashboardPage() {

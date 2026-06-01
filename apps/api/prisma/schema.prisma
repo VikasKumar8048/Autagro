@@ -102,9 +102,25 @@ model User {
   ratingsReceived    Rating[]          @relation("RatingsReceived")
   disputesRaised     Dispute[]         @relation("DisputesRaised")
   wallet             UserWallet?
+  notifications      Notification[]
 
   @@index([role, status])
   @@map("users")
+}
+
+enum NotificationType {
+  PURCHASE_REQUEST
+  REQUEST_ACCEPTED
+  REQUEST_REJECTED
+  ORDER_CONFIRMED
+  TRANSPORT_ASSIGNED
+  PAYMENT_RECEIVED
+  SHIPMENT_UPDATE
+  DELIVERY_COMPLETE
+  ESCROW_RELEASED
+  DISPUTE_OPENED
+  DISPUTE_RESOLVED
+  SYSTEM
 }
 
 model UserProfile {
@@ -429,22 +445,41 @@ model Rating {
 }
 
 model Dispute {
-  id          String        @id @default(uuid()) @db.Uuid
-  orderId     String        @map("order_id") @db.Uuid
-  raisedById  String        @map("raised_by_id") @db.Uuid
-  type        String        @db.VarChar(50)
-  description String        @db.VarChar(2000)
-  status      DisputeStatus @default(OPEN)
-  evidenceUrls String[]     @map("evidence_urls")
-  resolution  String?       @db.VarChar(2000)
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt @map("updated_at")
+  id                  String        @id @default(uuid()) @db.Uuid
+  orderId             String        @map("order_id") @db.Uuid
+  raisedById          String        @map("raised_by_id") @db.Uuid
+  type                String        @db.VarChar(50)
+  description         String        @db.VarChar(2000)
+  status              DisputeStatus @default(OPEN)
+  evidenceUrls        String[]      @map("evidence_urls")
+  resolution          String?       @db.VarChar(2000)
+  snapshotOrderStatus OrderStatus   @map("snapshot_order_status")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @updatedAt @map("updated_at")
 
   order    Order @relation(fields: [orderId], references: [id])
   raisedBy User  @relation("DisputesRaised", fields: [raisedById], references: [id])
 
   @@index([orderId, status])
   @@map("disputes")
+}
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  type      NotificationType
+  title     String           @db.VarChar(200)
+  body      String           @db.VarChar(1000)
+  data      Json?
+  readAt    DateTime?        @map("read_at")
+  emailSent Boolean          @default(false) @map("email_sent")
+  smsSent   Boolean          @default(false) @map("sms_sent")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
+  @@map("notifications")
 }
 
 model CropPriceSnapshot {

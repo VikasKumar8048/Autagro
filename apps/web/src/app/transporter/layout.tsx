@@ -5,6 +5,7 @@ const TRANSPORTER_NAV = [
   { href: '/transporter', label: 'Dashboard' },
   { href: '/transporter/jobs', label: 'Available jobs' },
   { href: '/transporter/active', label: 'Active deliveries' },
+  { href: '/wallet', label: 'Wallet' },
 ];
 
 export default function TransporterLayout({ children }: { children: React.ReactNode }) {

@@ -12,12 +12,16 @@ import {
   UserRole,
 } from '@prisma/client';
 import { decimalToNumber, toDecimal } from '../common/utils/decimal.util';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePurchaseRequestDto } from './dto/create-purchase-request.dto';
 
 @Injectable()
 export class PurchaseRequestsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async createAsBuyer(buyerId: string, dto: CreatePurchaseRequestDto) {
     const listing = await this.prisma.cropListing.findUnique({
@@ -56,8 +60,17 @@ export class PurchaseRequestsService {
         message: dto.message,
       },
       include: {
-        listing: { select: { cropName: true, variety: true } },
+        listing: { select: { cropName: true, variety: true, sellerId: true } },
       },
+    });
+
+    void this.notifications.notify({
+      userId: listing.sellerId,
+      type: 'PURCHASE_REQUEST',
+      title: 'New purchase request',
+      body: `A buyer requested ${decimalToNumber(requestedQty)} ${listing.unit} of ${listing.cropName} (${listing.variety}).`,
+      data: { requestId: request.id, listingId: dto.listingId },
+      sendSms: true,
     });
 
     return this.serialize(request);
@@ -168,6 +181,15 @@ export class PurchaseRequestsService {
       return { request: updatedRequest, order };
     });
 
+    void this.notifications.notify({
+      userId: request.buyerId,
+      type: 'REQUEST_ACCEPTED',
+      title: 'Request accepted',
+      body: `The seller accepted your request for ${request.listing.cropName}. Please confirm the order.`,
+      data: { orderId: result.order.id, requestId },
+      sendSms: true,
+    });
+
     return {
       request: this.serialize(result.request),
       order: {
@@ -190,6 +212,15 @@ export class PurchaseRequestsService {
       where: { id: requestId },
       data: { status: PurchaseRequestStatus.REJECTED },
     });
+
+    void this.notifications.notify({
+      userId: request.buyerId,
+      type: 'REQUEST_REJECTED',
+      title: 'Request declined',
+      body: `Your request for ${request.listing.cropName} was declined by the seller.`,
+      data: { requestId },
+    });
+
     return this.serialize(updated);
   }
 

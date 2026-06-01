@@ -6,6 +6,7 @@ import {
 import { EscrowStatus, OrderStatus, Prisma } from '@prisma/client';
 import { decimalToNumber } from '../common/utils/decimal.util';
 import { EscrowService } from '../agripay/escrow.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -13,6 +14,7 @@ export class OrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly escrow: EscrowService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async listForBuyer(buyerId: string, status?: OrderStatus) {
@@ -115,6 +117,14 @@ export class OrdersService {
       });
     });
 
+    void this.notifications.notify({
+      userId: order.sellerId,
+      type: 'ORDER_CONFIRMED',
+      title: 'Buyer confirmed order',
+      body: 'The buyer confirmed the order. Transport matching has started.',
+      data: { orderId },
+    });
+
     return this.serializeOrderDetail(result);
   }
 
@@ -139,7 +149,7 @@ export class OrdersService {
       include: this.detailInclude(),
     });
 
-    if (order.escrow || updated.escrow) {
+    if (order.escrow) {
       await this.escrow.releaseEscrow(orderId);
     }
 

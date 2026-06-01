@@ -14,6 +14,7 @@ import {
   PAYABLE_ORDER_STATUSES,
   PLATFORM_FEE_PERCENT,
 } from './agripay.constants';
+import { NotificationsService } from '../notifications/notifications.service';
 import { LedgerService } from './ledger.service';
 import { WalletService } from './wallet.service';
 
@@ -31,6 +32,7 @@ export class EscrowService {
     private readonly prisma: PrismaService,
     private readonly ledger: LedgerService,
     private readonly wallet: WalletService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   calculateBreakdown(order: {
@@ -162,10 +164,90 @@ export class EscrowService {
       { provider: paymentMeta.provider },
     );
 
-    return this.prisma.escrowAccount.findUniqueOrThrow({ where: { id: escrowId } });
+    const funded = await this.prisma.escrowAccount.findUniqueOrThrow({
+      where: { id: escrowId },
+      include: { order: true },
+    });
+
+    void this.notifications.notify({
+      userId: funded.order.sellerId,
+      type: 'PAYMENT_RECEIVED',
+      title: 'Payment in escrow',
+      body: `Buyer paid ₹${total.toLocaleString('en-IN')} into escrow for order ${funded.orderId.slice(0, 8)}…`,
+      data: { orderId: funded.orderId, escrowId },
+      sendSms: true,
+    });
+
+    return funded;
   }
 
-  async releaseEscrow(orderId: string) {
+  async refundEscrow(orderId: string) {
+    const escrow = await this.prisma.escrowAccount.findFirst({
+      where: { orderId },
+      include: { order: { include: { transportJob: true } } },
+    });
+    if (!escrow) {
+      throw new NotFoundException('Escrow not found');
+    }
+    if (
+      escrow.status !== EscrowStatus.FUNDED &&
+      escrow.status !== EscrowStatus.DISPUTED
+    ) {
+      throw new BadRequestException(
+        `Refund not allowed for escrow status: ${escrow.status}`,
+      );
+    }
+
+    const order = escrow.order;
+    const total = decimalToNumber(escrow.totalAmount);
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.escrowAccount.update({
+        where: { id: escrow.id },
+        data: { status: EscrowStatus.REFUNDED },
+      });
+      await tx.order.update({
+        where: { id: orderId },
+        data: { status: OrderStatus.CANCELLED },
+      });
+    });
+
+    await this.ledger.appendEntry(
+      escrow.id,
+      LedgerEntryType.REFUND_BUYER,
+      total,
+      LedgerDirection.DEBIT,
+      order.buyerId,
+      { payee: 'BUYER' },
+    );
+    await this.wallet.credit(
+      order.buyerId,
+      total,
+      LedgerEntryType.REFUND_BUYER,
+      orderId,
+      escrow.id,
+    );
+    await this.ledger.appendEntry(
+      escrow.id,
+      'ESCROW_REFUND',
+      total,
+      LedgerDirection.CREDIT,
+      orderId,
+    );
+    await this.ledger.assertBalanced(escrow.id);
+
+    void this.notifications.notify({
+      userId: order.buyerId,
+      type: 'DISPUTE_RESOLVED',
+      title: 'Escrow refunded',
+      body: `₹${total.toLocaleString('en-IN')} has been credited to your wallet.`,
+      data: { orderId },
+    });
+
+    return this.getEscrowDetails(orderId);
+  }
+
+  async releaseEscrow(orderId: string, options?: { force?: boolean }) {
     const escrow = await this.prisma.escrowAccount.findUnique({
       where: { orderId },
       include: {
@@ -179,12 +261,19 @@ export class EscrowService {
     if (escrow.status === EscrowStatus.RELEASED) {
       return escrow;
     }
-    if (escrow.status !== EscrowStatus.FUNDED) {
+    const canRelease =
+      escrow.status === EscrowStatus.FUNDED ||
+      (options?.force && escrow.status === EscrowStatus.DISPUTED);
+    if (!canRelease) {
       throw new BadRequestException('Escrow must be funded before release');
     }
 
     const order = escrow.order;
-    if (order.status !== OrderStatus.COMPLETED && order.status !== OrderStatus.DELIVERED) {
+    if (
+      !options?.force &&
+      order.status !== OrderStatus.COMPLETED &&
+      order.status !== OrderStatus.DELIVERED
+    ) {
       throw new BadRequestException('Order must be delivered before escrow release');
     }
 
@@ -259,6 +348,26 @@ export class EscrowService {
 
     await this.ledger.assertBalanced(escrow.id);
 
+    const payloads = [
+      {
+        userId: order.sellerId,
+        type: 'ESCROW_RELEASED' as const,
+        title: 'Payment released',
+        body: `₹${cropAmount.toLocaleString('en-IN')} from escrow has been credited to your wallet.`,
+        data: { orderId },
+      },
+    ];
+    if (order.transportJob?.transporterId && transportAmount > 0) {
+      payloads.push({
+        userId: order.transportJob.transporterId,
+        type: 'ESCROW_RELEASED' as const,
+        title: 'Transport fee released',
+        body: `₹${transportAmount.toLocaleString('en-IN')} transport fee credited to your wallet.`,
+        data: { orderId },
+      });
+    }
+    void this.notifications.notifyMany(payloads);
+
     return this.getEscrowDetails(orderId);
   }
 
@@ -304,7 +413,8 @@ export class EscrowService {
           order.status as (typeof PAYABLE_ORDER_STATUSES)[number],
         ) &&
         order.escrow?.status !== EscrowStatus.FUNDED &&
-        order.escrow?.status !== EscrowStatus.RELEASED,
+        order.escrow?.status !== EscrowStatus.RELEASED &&
+        (order.transportFee != null || order.status !== OrderStatus.TRANSPORT_PENDING),
     };
   }
 

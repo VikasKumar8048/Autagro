@@ -8,6 +8,7 @@ import { OrderStatus, Prisma } from '@prisma/client';
 import { decimalToNumber, toDecimal } from '../common/utils/decimal.util';
 import { PrismaService } from '../prisma/prisma.service';
 import { TransportJobStatus } from './transport.constants';
+import { NotificationsService } from '../notifications/notifications.service';
 import { TransportMatchingService } from './transport-matching.service';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class TransportService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly matching: TransportMatchingService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async updateTransporterLocation(
@@ -112,6 +114,10 @@ export class TransportService {
       throw new BadRequestException('Job cannot be marked delivered from current status');
     }
 
+    const order = await this.prisma.order.findUniqueOrThrow({
+      where: { id: job.orderId },
+    });
+
     await this.prisma.$transaction(async (tx) => {
       await tx.transportJob.update({
         where: { id: jobId },
@@ -125,6 +131,15 @@ export class TransportService {
         where: { orderId: job.orderId },
         data: { status: 'DELIVERED' },
       });
+    });
+
+    void this.notifications.notify({
+      userId: order.buyerId,
+      type: 'DELIVERY_COMPLETE',
+      title: 'Crop delivered',
+      body: 'Your order was marked delivered. Please confirm receipt to release escrow.',
+      data: { orderId: job.orderId },
+      sendSms: true,
     });
 
     return this.matching.getJobForTransporter(transporterId, jobId);
