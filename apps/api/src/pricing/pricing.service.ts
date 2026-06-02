@@ -10,6 +10,33 @@ interface MarketPriceQuery {
   limit?: number;
 }
 
+export interface LatestMarketPricesPayload {
+  cropName: string;
+  state: string | null;
+  markets: {
+    id: string;
+    marketName: string;
+    state: string;
+    minPrice: number;
+    maxPrice: number;
+    modalPrice: number;
+    unit: string;
+    source: string;
+    recordedOn: string;
+  }[];
+}
+
+export interface TrendPayload {
+  cropName: string;
+  days: number;
+  points: {
+    date: string;
+    modalPrice: number;
+    minPrice: number;
+    maxPrice: number;
+  }[];
+}
+
 @Injectable()
 export class PricingService {
   constructor(
@@ -57,7 +84,7 @@ export class PricingService {
     const limit = Math.min(query.limit ?? 10, 25);
     const cacheKey = `pricing:latest:${normalizedCrop}:${normalizedState}:${limit}`;
 
-    const cached = await this.safeGetCache(cacheKey);
+    const cached = await this.safeGetCache<LatestMarketPricesPayload>(cacheKey);
     if (cached) {
       return cached;
     }
@@ -94,7 +121,7 @@ export class PricingService {
       LIMIT ${limit}
     `;
 
-    const payload = {
+    const payload: LatestMarketPricesPayload = {
       cropName: query.cropName,
       state: query.state ?? null,
       markets: rows.map((r) => ({
@@ -117,7 +144,7 @@ export class PricingService {
     const normalizedCrop = cropName.trim().toLowerCase();
     const boundedDays = Math.max(3, Math.min(days, 30));
     const cacheKey = `pricing:trend:${normalizedCrop}:${boundedDays}`;
-    const cached = await this.safeGetCache(cacheKey);
+    const cached = await this.safeGetCache<TrendPayload>(cacheKey);
     if (cached) {
       return cached;
     }
@@ -137,7 +164,7 @@ export class PricingService {
       ORDER BY s.recorded_on ASC
     `;
 
-    const payload = {
+    const payload: TrendPayload = {
       cropName,
       days: boundedDays,
       points: rows.map((r) => ({
@@ -199,10 +226,10 @@ export class PricingService {
     };
   }
 
-  private async safeGetCache(key: string) {
+  private async safeGetCache<T>(key: string): Promise<T | null> {
     try {
       const raw = await this.redis.getClient().get(key);
-      return raw ? (JSON.parse(raw) as unknown) : null;
+      return raw ? (JSON.parse(raw) as T) : null;
     } catch {
       return null;
     }

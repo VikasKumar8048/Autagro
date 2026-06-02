@@ -73,13 +73,13 @@ farmora/
 | 1 | Auth | OTP, JWT, RBAC, sessions, profiles |
 | 2 | Seller | Listings, buyer requests |
 | 3 | Buyer | Marketplace, purchase flow |
-| 4 | Pricing | eNAM ingestion, Redis cache |
+| 4 | Pricing | eNAM ingestion, Redis cache, trend/spread APIs |
 | 5 | Transport | Jobs, matching engine |
 | 6 | AgriPay | Escrow, ledger, settlement |
 | 7 | GPS | Live tracking, ETA |
 | 8 | Notifications | Push, SMS, email |
 | 9 | Disputes | Evidence, admin workflow |
-| 10 | Ops | K8s, Prometheus, Grafana |
+| 10 | Ops | Health probes, K8s, Prometheus, Grafana |
 
 ## Security Model
 
@@ -97,6 +97,6 @@ LISTED → REQUESTED → SELLER_ACCEPTED → BUYER_CONFIRMED → TRANSPORT_PENDI
   → TRANSPORT_ASSIGNED → PAID_ESCROW → IN_TRANSIT → DELIVERED → ESCROW_RELEASED
 ```
 
-## Phase 1 Scope
+## Current Delivery Status
 
-This repository phase implements **Authentication** only: Prisma models for users/sessions/OTP, NestJS auth APIs, Next.js login/profile UI, and tests.
+Core marketplace flow is implemented through Phase 9 (auth, listings, buyer/seller flow, transport, escrow, notifications, and disputes). Phase 10 has started with operational health endpoints and CI remains in place for API/web builds.

@@ -35,10 +35,29 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build --workspace=@farmora/shared
+      - run: npm run build --workspace=@farmora/api
       - run: npm run db:generate --workspace=@farmora/api
       - run: npm run db:migrate:deploy --workspace=@farmora/api
         env:
           DATABASE_URL: postgresql://farmora:farmora@localhost:5432/farmora?schema=public
+      - name: API health smoke checks
+        run: |
+          nohup npm run start --workspace=@farmora/api > api.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS "http://localhost:4000/api/v1/ops/live" > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS "http://localhost:4000/api/v1/ops/live"
+          curl -fsS "http://localhost:4000/api/v1/ops/ready"
+          curl -fsS "http://localhost:4000/api/v1/ops/metrics" | head -n 8
+        env:
+          DATABASE_URL: postgresql://farmora:farmora@localhost:5432/farmora?schema=public
+          REDIS_URL: redis://localhost:6379
+          API_PORT: 4000
+          JWT_ACCESS_SECRET: ci-access-secret-minimum-32-characters-long
+          JWT_REFRESH_SECRET: ci-refresh-secret-minimum-32-characters-long
       - run: npm run test --workspace=@farmora/api
         env:
           DATABASE_URL: postgresql://farmora:farmora@localhost:5432/farmora?schema=public

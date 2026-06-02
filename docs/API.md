@@ -102,6 +102,14 @@ Base URL: `/api/v1`
 | GET | `/pricing/spread?cropName=...&state=...` | Best/worst modal spread | Public |
 | POST | `/pricing/ingest/mock` | Seed mock eNAM snapshots | Bearer (ADMIN) |
 
+## Ops (Phase 10 start)
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| GET | `/ops/live` | Liveness probe | Public |
+| GET | `/ops/ready` | Readiness probe (DB + Redis checks) | Public |
+| GET | `/ops/metrics` | Prometheus-style service metrics | Public |
+
 ## Disputes (Phase 9)
 
 | Method | Path | Description | Auth |
