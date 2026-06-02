@@ -93,6 +93,15 @@ Base URL: `/api/v1`
 
 **Settlement:** On `POST /buyer/orders/:id/confirm-delivery`, escrow splits to seller (crop), transporter (fee), and platform (commission).
 
+## Pricing (Phase 4)
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| GET | `/pricing/markets?cropName=...&state=...` | Latest mandi prices by market | Public |
+| GET | `/pricing/trend?cropName=...&days=7` | Daily aggregated trend | Public |
+| GET | `/pricing/spread?cropName=...&state=...` | Best/worst modal spread | Public |
+| POST | `/pricing/ingest/mock` | Seed mock eNAM snapshots | Bearer (ADMIN) |
+
 ## Disputes (Phase 9)
 
 | Method | Path | Description | Auth |

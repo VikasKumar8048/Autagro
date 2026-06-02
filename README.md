@@ -51,12 +51,13 @@ npm run dev:web
 | 1 | Authentication | Implemented |
 | 2 | Seller Dashboard | Implemented |
 | 3 | Buyer Dashboard (orders, confirm, requests) | Implemented |
+| 4 | Price engine (ingest, markets, trend, spread) | Implemented |
 | 5 | Transport matching + GPS + transporter UI | Implemented |
 | 6 | AgriPay escrow (Razorpay, ledger, wallets) | Implemented |
 | 7 | GPS tracking (core) | Implemented |
 | 8 | Notifications (in-app, email/SMS dev) | Implemented |
 | 9 | Disputes (raise, admin resolve, escrow freeze/refund) | Implemented |
-| 10 | Price engine, production ops | Planned |
+| 10 | Production ops | Planned |
 
 ## Documentation
 

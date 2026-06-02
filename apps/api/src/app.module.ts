@@ -11,6 +11,7 @@ import { DisputesModule } from './disputes/disputes.module';
 import { BuyerModule } from './buyer/buyer.module';
 import { TransportModule } from './transport/transport.module';
 import { MarketplaceModule } from './marketplace/marketplace.module';
+import { PricingModule } from './pricing/pricing.module';
 import { SellerModule } from './seller/seller.module';
 import { UsersModule } from './users/users.module';
 
@@ -36,6 +37,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     SellerModule,
     MarketplaceModule,
+    PricingModule,
     BuyerModule,
     TransportModule,
     AgripayModule,

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OrderStatusBadge } from '@/components/orders/order-status-badge';
+import { PriceInsightsCard } from '@/components/pricing/price-insights-card';
 import { buyerApi } from '@/lib/buyer-api';
 import { useAuthStore } from '@/stores/auth.store';
 
@@ -32,6 +33,7 @@ export default function BuyerDashboardPage() {
   }
 
   const stats = data?.stats;
+  const topCrop = data?.recentOrders?.[0]?.cropName ?? 'Wheat';
 
   return (
     <div className="space-y-6">
@@ -87,6 +89,8 @@ export default function BuyerDashboardPage() {
           )}
         </CardContent>
       </Card>
+
+      <PriceInsightsCard cropName={topCrop} />
     </div>
   );
 }
