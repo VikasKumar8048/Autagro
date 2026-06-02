@@ -6,7 +6,7 @@ Production-grade agricultural marketplace — farmer to buyer, without middlemen
 
 - **API**: NestJS, Prisma, PostgreSQL, Redis, JWT + OTP
 - **Web**: Next.js 15, React, Tailwind, Zustand, React Query
-- **Infra**: Docker Compose (Postgres + Redis)
+- **Infra**: Docker Compose (API + Postgres + Redis)
 
 ## Quick start
 
@@ -57,7 +57,7 @@ npm run dev:web
 | 7 | GPS tracking (core) | Implemented |
 | 8 | Notifications (in-app, email/SMS dev) | Implemented |
 | 9 | Disputes (raise, admin resolve, escrow freeze/refund) | Implemented |
-| 10 | Production ops | Planned |
+| 10 | Production ops (health probes, metrics, CI smoke checks) | In Progress |
 
 ## Documentation
 
